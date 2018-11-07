@@ -10,6 +10,19 @@ def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
     users.append((userObject, userName))
 
+
+def register(name):
+    if name in usersData:
+        return True
+    else:
+        return False
+
+def recieveMessages(obj,name):
+    while True:
+        data = pickle.loads(obj.recv(1024)).message
+        broadcast(name+": "+data)
+
+
 def threaded(c):
     while True:
         Msg = c.recv(1024)
@@ -22,16 +35,19 @@ def threaded(c):
             else:
                 c.send("Failed ...")
         else:
-            success = register(Msg.userName, Msg.password)
+            success = register(Msg.userName)
             if(success):
                 c.send("Registered Successfully")
             else:
                 c.send("Username is already exist")
         if(success):
             usersData[Msg.userName] = Msg.password
-            users.append((c,Msg.userName))
+            users.append((Msg.userName,c))
             break
-    
+    for (username, userObj) in users:
+        if userObj == obj:
+            name = username
+
     recieveMessages(c)
     c.close()
 
