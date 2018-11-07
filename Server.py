@@ -6,10 +6,33 @@ print_lock = threading.Lock()
 users = []
 usersData = {}
 
+def addUserToSystem(userName, password, userObject):
+    usersData[userName] = password
+    users.append((userObject, userName))
+
 def threaded(c):
-    While True:
-    Msg = c.recv(1024)
+    while True:
+        Msg = c.recv(1024)
+        Msg = pickle.loads(Msg)
+        success = bool()
+        if(Msg.type == MSGTYPE.LOGIN):
+            success = login(Msg.userName, Msg.password)
+            if(success):
+                c.send("Logged In successfully")
+            else:
+                c.send("Failed ...")
+        else:
+            success = register(Msg.userName, Msg.password)
+            if(success):
+                c.send("Registered Successfully")
+            else:
+                c.send("Username is already exist")
+        if(success):
+            usersData[Msg.userName] = Msg.password
+            users.append((c,Msg.userName))
+            break
     
+    recieveMessages(c)
     c.close()
 
 def Main():
