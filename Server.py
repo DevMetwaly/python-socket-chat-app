@@ -2,9 +2,25 @@ import socket
 from _thread import * 
 import threading
 import pickle
+from enum import Enum
+
 print_lock = threading.Lock()
 users = []
 usersData = {}
+
+
+
+class MSG:
+    def __init__(self, message, msgType):
+        self.message = message
+        self.msgType = msgType
+
+
+class MSGTYPE(Enum):
+    LOGIN = 1
+    SIGN_UP = 2
+    ONLINE = 3
+    OFFLINE = 4
 
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
@@ -15,7 +31,7 @@ def threaded(c):
         Msg = c.recv(1024)
         Msg = pickle.loads(Msg)
         success = bool()
-        if(Msg.type == MSGTYPE.LOGIN):
+        if(Msg.msgType == MSGTYPE.LOGIN):
             success = login(Msg.userName, Msg.password)
             if(success):
                 c.send("Logged In successfully")
@@ -32,7 +48,11 @@ def threaded(c):
             users.append((c,Msg.userName))
             break
     
+    Msg = MSG("Ahmed is now online", MSGTYPE.ONLINE)
     recieveMessages(c)
+
+    Msg = MSG("Ahmed is now offline", MSGTYPE.OFFLINE)
+    removeUser(c)
     c.close()
 
 def Main():
