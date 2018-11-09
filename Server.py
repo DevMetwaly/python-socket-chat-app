@@ -5,14 +5,14 @@ import pickle
 from Message import *
 import base64
 print_lock = threading.Lock()
-users = []
-usersData = {}
+users = []  ##(userObject, username)
+usersData = {} ##name: Password
 
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
     users.append((userObject, userName))
 
-
+    print(users)
 def register(name):
     if name in usersData:
         return (False, "Name is Already Used. Choose Other Name")
@@ -46,22 +46,18 @@ def getMessageFormClient(client):
 
 
 def login(username_sent, password_sent):
-    return (True, "Loggedin Successfully.")
+    for username in usersData:
+            if (password_sent == usersData[username]):
+                return (True, "Loggedin Successfully.")
 
-    """
-    for (username, password) in useradata.items():
-        if (password == password_sent):
-            return True 
-        else:
-            return False 
-    """
+    return (False, "UnSuccessfull Logging in")
 
 
 def handleLoginOrRegister(Msg):
     if (Msg.msgType == MSGTYPE.LOGIN):
         return login(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
     elif (Msg.msgType == MSGTYPE.SIGN_UP):
-        return register(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
+        return register(Msg.message[0]) + (Msg.message[0],)
 
     return (False, "Please Login First!!!")
 

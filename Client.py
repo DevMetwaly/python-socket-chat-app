@@ -8,9 +8,10 @@ def Main():
     port = 12345
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
+
     username="abdo"
     password="1234"
-    Msg= MSG((username,password),MSGTYPE.LOGIN)
+    Msg= MSG((username,password),MSGTYPE.SIGN_UP)
     
     s.send(base64.b64encode(pickle.dumps(Msg)))
     data = s.recv(1024)
