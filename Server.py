@@ -34,21 +34,18 @@ def recieveMessages(client, name):
 
 
 def sendMessageToClient(client, message):
-    client.send(pickle.dumps(message))
+    client.send(base64.b64encode(pickle.dumps(message)))
+    
 
 
-def getMessageFormClient(client):
-    data = client.recv(1024)
-    print(data)
-    data = base64.b64decode(data)
-    print(data)
-    return pickle.loads(data)
+def getMessageFormClient(client):    
+    return pickle.loads(base64.b64decode(client.recv(1024)))
 
 
 def login(username_sent, password_sent):
     for username in usersData:
-            if (password_sent == usersData[username]):
-                return (True, "Loggedin Successfully.")
+        if (password_sent == usersData[username]):
+            return (True, "Loggedin Successfully.")
 
     return (False, "UnSuccessfull Logging in")
 
@@ -72,17 +69,20 @@ def threaded(client):
         print((isSucceed, status, userName))
         if (isSucceed):
             addUserToSystem(Msg.message[0], Msg.message[1], client)
+            sendMessageToClient(client, MSG(status, MSGTYPE.SUCCESS))
             break
         else:
             sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
+            client.close()
+            return
 
     sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
     Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
 
-    recieveMessages(client, userName)
+    #recieveMessages(client, userName)
 
     Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    # removeUser(client)
+    #removeUser(client)
     client.close()
 
 

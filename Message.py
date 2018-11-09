@@ -11,3 +11,4 @@ class MSGTYPE(Enum):
     ONLINE = 3
     OFFLINE = 4
     FAILURE = 5
+    SUCCESS = 6
