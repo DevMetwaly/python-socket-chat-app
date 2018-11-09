@@ -50,21 +50,42 @@ def login(username_sent, password_sent):
             return False 
     """
 
+def login(username_sent, password_sent):
+    for username in usersData:
+        if (password_sent == usersData[username]):
+            return (True, "Loggedin Successfully.")
+
+    return (False, "UnSuccessfulg Logging in")
+
+<<<<<<< HEAD
+#list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
+list_of_onlineusers = dict(list_of_onlineusers)
+def removeuser(client):
+
+
+	print (list_of_onlineusers)
+	del list_of_onlineusers[client]
+	print (list_of_onlineusers)
+=======
+>>>>>>> 507a91afc6627228ad7ddafdd31dd6ae17e99696
 
 def handleLoginOrRegister(Msg):
     if (Msg.msgType == MSGTYPE.LOGIN):
         return login(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
     elif (Msg.msgType == MSGTYPE.SIGN_UP):
-        return register(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
+        return register(Msg.message[0]) + (Msg.message[0],)
 
     return (False, "Please Login First!!!")
 
 
 def threaded(client):
+    print("NEW CLIENT")
     userName = str()
     while True:
         Msg = getMessageFormClient(client)
+        
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
+        print((isSucceed, status, userName))
         if (isSucceed):
             addUserToSystem(Msg.message[0], Msg.message[1], client)
             break
