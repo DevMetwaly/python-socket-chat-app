@@ -3,7 +3,7 @@ from _thread import *
 import threading
 import pickle
 from Message import *
-
+import base64
 print_lock = threading.Lock()
 users = []
 usersData = {}
@@ -27,6 +27,7 @@ def broadcastMessageToAllClients(msg):
 
 def recieveMessages(client, name):
     while True:
+        print("Taking user name and password.")
         Msg = getMessageFormClient(client)
         data = Msg.message
         broadcastMessageToAllClients(name + ": " + data)
@@ -37,7 +38,11 @@ def sendMessageToClient(client, message):
 
 
 def getMessageFormClient(client):
-    return pickle.loads(client.recv(1024))
+    data = client.recv(1024)
+    print(data)
+    data = base64.b64decode(data)
+    print(data)
+    return pickle.loads(data)
 
 
 def login(username_sent, password_sent):
@@ -62,10 +67,13 @@ def handleLoginOrRegister(Msg):
 
 
 def threaded(client):
+    print("NEW CLIENT")
     userName = str()
     while True:
         Msg = getMessageFormClient(client)
+        
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
+        print((isSucceed, status, userName))
         if (isSucceed):
             addUserToSystem(Msg.message[0], Msg.message[1], client)
             break
