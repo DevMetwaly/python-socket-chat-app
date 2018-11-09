@@ -54,12 +54,21 @@ def login(username_sent,password_sent):
     return (True, "Loggedin Successfully.")
 	
     """
-    for (username, password) in useradata.items():
+    for (username, password) in usersdata.items():
         if (password == password_sent):
             return True 
         else:
             return False 
     """
+
+#list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
+list_of_onlineusers = dict(list_of_onlineusers)
+def removeuser(client):
+	
+	
+	print (list_of_onlineusers)
+	del list_of_onlineusers[client]
+	print (list_of_onlineusers)
 
 def handleLoginOrRegister(Msg):
     if(Msg.msgType == MSGTYPE.LOGIN):
