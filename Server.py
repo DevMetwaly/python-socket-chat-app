@@ -21,39 +21,61 @@ class MSGTYPE(Enum):
     SIGN_UP = 2
     ONLINE = 3
     OFFLINE = 4
+    FAILURE = 5
+
 
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
     users.append((userObject, userName))
 
-def threaded(c):
-    while True:
-        Msg = c.recv(1024)
-        Msg = pickle.loads(Msg)
-        success = bool()
-        if(Msg.msgType == MSGTYPE.LOGIN):
-            success = login(Msg.userName, Msg.password)
-            if(success):
-                c.send("Logged In successfully")
-            else:
-                c.send("Failed ...")
-        else:
-            success = register(Msg.userName, Msg.password)
-            if(success):
-                c.send("Registered Successfully")
-            else:
-                c.send("Username is already exist")
-        if(success):
-            usersData[Msg.userName] = Msg.password
-            users.append((c,Msg.userName))
-            break
-    
-    Msg = MSG("Ahmed is now online", MSGTYPE.ONLINE)
-    recieveMessages(c)
 
-    Msg = MSG("Ahmed is now offline", MSGTYPE.OFFLINE)
-    removeUser(c)
-    c.close()
+def register(name):
+    if name in usersData:
+        return (False, "Name is Already Used. Choose Other Name")
+    else:
+        return (True, "Registered Successfully!, Hello: "+name)
+
+
+def recieveMessages(obj,name):
+    while True:
+        data = pickle.loads(obj.recv(1024)).message
+        broadcast(name+": "+data)
+
+def sendMessageToClient(client, message):
+    client.send(pickle.dums(message))
+    
+def getMessageFormClient(client):
+    return pickle.loads(client.recv(1024))
+
+def handleLoginOrRegister(Msg):
+    if(Msg.msgType == MSGTYPE.LOGIN):
+        return login(Msg.userName, Msg.password) + (Msg.username,)
+    elif (Msg.msgType == MSGTYPE.SIGN_UP):
+        return register(Msg.userName) + (Msg.username,)
+
+    return (False,"Please Login First!!!")
+
+
+def threaded(client):
+    userName = str()
+    while True:
+        Msg = getMessageFormClient(client)
+        (isSucceed, status, userName) = handleLoginOrRegister(Msg)
+        if(isSucceed):
+            addUserToSystem(Msg.userName,Msg.password,client)
+            break
+        else:
+            sendMessageToClient(client,MSG(status,MSGTYPE.FAILURE))
+            
+
+    sendMessageToClient(client,MSG(status,MSGTYPE.FAILURE))
+    Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
+
+    recieveMessages(client,userName)
+
+    Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
+    removeUser(client)
+    client.close()
 
 def Main():
     host = ""
@@ -68,13 +90,13 @@ def Main():
     print("Socket is listening")
 
     while True:
-        c, addr = s.accept()
+        client, addr = s.accept()
 
         print_lock.acquire()
         print("Connected to:", addr[0], ":", addr[1])
         print_lock.release()
 
-        start_new_thread(threaded,(c,))
+        start_new_thread(threaded,(client,))
     s.close()
 
 if __name__ == "__main__":
