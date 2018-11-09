@@ -3,9 +3,11 @@ from _thread import *
 import threading
 import pickle
 from Message import *
+
 print_lock = threading.Lock()
 users = []
 usersData = {}
+
 
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
@@ -40,34 +42,22 @@ def getMessageFormClient(client):
 
 
 def login(username_sent, password_sent):
-    return (True, "Loggedin Successfully.")
-
-    """
-    for (username, password) in useradata.items():
-        if (password == password_sent):
-            return True 
-        else:
-            return False 
-    """
-
-def login(username_sent, password_sent):
-    for username in usersData:
-        if (password_sent == usersData[username]):
+    for username_sent in usersData:
+        if (password_sent == usersData[username_sent]):
             return (True, "Loggedin Successfully.")
 
     return (False, "UnSuccessfulg Logging in")
 
-<<<<<<< HEAD
-#list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
-list_of_onlineusers = dict(list_of_onlineusers)
+
+# list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
+#list_of_onlineusers = dict(list_of_onlineusers)
+
+
 def removeuser(client):
+    print(list_of_onlineusers)
+    del list_of_onlineusers[client]
+    print(list_of_onlineusers)
 
-
-	print (list_of_onlineusers)
-	del list_of_onlineusers[client]
-	print (list_of_onlineusers)
-=======
->>>>>>> 507a91afc6627228ad7ddafdd31dd6ae17e99696
 
 def handleLoginOrRegister(Msg):
     if (Msg.msgType == MSGTYPE.LOGIN):
@@ -83,7 +73,7 @@ def threaded(client):
     userName = str()
     while True:
         Msg = getMessageFormClient(client)
-        
+
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
         print((isSucceed, status, userName))
         if (isSucceed):
@@ -95,7 +85,7 @@ def threaded(client):
     try:
         recieveMessages(client, userName)
     except EOFError:
-        #removeUser(client)
+        # removeUser(client)
         broadcastMessageToAllClients(MSG(userName + " is now offline", MSGTYPE.OFFLINE).message)
     client.close()
 
