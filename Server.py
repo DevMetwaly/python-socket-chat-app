@@ -3,7 +3,6 @@ from _thread import *
 import threading
 import pickle
 from Message import *
-import base64
 print_lock = threading.Lock()
 users = []
 usersData = {}
@@ -22,12 +21,11 @@ def register(name):
 
 def broadcastMessageToAllClients(msg):
     for (userObj, _) in users:
-        userObj.send(msg)
+        userObj.send(msg.encode('ascii'))
 
 
 def recieveMessages(client, name):
     while True:
-        print("Taking user name and password.")
         Msg = getMessageFormClient(client)
         data = Msg.message
         broadcastMessageToAllClients(name + ": " + data)
@@ -38,11 +36,7 @@ def sendMessageToClient(client, message):
 
 
 def getMessageFormClient(client):
-    data = client.recv(1024)
-    print(data)
-    data = base64.b64decode(data)
-    print(data)
-    return pickle.loads(data)
+    return pickle.loads(client.recv(1024))
 
 
 def login(username_sent, password_sent):
@@ -67,26 +61,21 @@ def handleLoginOrRegister(Msg):
 
 
 def threaded(client):
-    print("NEW CLIENT")
     userName = str()
     while True:
         Msg = getMessageFormClient(client)
-        
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
-        print((isSucceed, status, userName))
         if (isSucceed):
             addUserToSystem(Msg.message[0], Msg.message[1], client)
             break
         else:
             sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
-
-    sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
-    Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
-
-    recieveMessages(client, userName)
-
-    Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    # removeUser(client)
+    sendMessageToClient(client, MSG(userName + " is now online", MSGTYPE.ONLINE))
+    try:
+        recieveMessages(client, userName)
+    except EOFError:
+        #removeUser(client)
+        broadcastMessageToAllClients(MSG(userName + " is now offline", MSGTYPE.OFFLINE).message)
     client.close()
 
 

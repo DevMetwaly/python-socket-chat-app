@@ -12,9 +12,12 @@ def Main():
     password="1234"
     Msg= MSG((username,password),MSGTYPE.LOGIN)
     
-    s.send(base64.b64encode(pickle.dumps(Msg)))
-    data = s.recv(1024)
-    print(data)
+    s.send(pickle.dumps(Msg))
+    data = pickle.loads(s.recv(1024))
+    print(data.message)
+    while True:
+        s.send(pickle.dumps(MSG(input(""),MSGTYPE.Message)))
+        print(str(s.recv(1024)))
     s.close()
 
 if __name__ == '__main__':
