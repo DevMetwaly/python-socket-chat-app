@@ -2,27 +2,10 @@ import socket
 from _thread import * 
 import threading
 import pickle
-from enum import Enum
-
+from Message import *
 print_lock = threading.Lock()
 users = []
 usersData = {}
-
-
-
-class MSG:
-    def __init__(self, message, msgType):
-        self.message = message
-        self.msgType = msgType
-
-
-class MSGTYPE(Enum):
-    LOGIN = 1
-    SIGN_UP = 2
-    ONLINE = 3
-    OFFLINE = 4
-    FAILURE = 5
-
 
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
