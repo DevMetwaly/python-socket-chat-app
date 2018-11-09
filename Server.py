@@ -70,8 +70,9 @@ def handleLoginOrRegister(Msg):
 
 def threaded(client):
     userName = str()
-    while True:
-        try:
+    try:
+        while True:
+
             Msg = getMessageFormClient(client)
             (isSucceed, status, userName) = handleLoginOrRegister(Msg)
             print((isSucceed, status, userName))
@@ -80,10 +81,11 @@ def threaded(client):
                 break
             else:
                 sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
-        except:
-           break
 
-    broadcastMessageToAllClients(MSG(userName + " is now online", MSGTYPE.ONLINE).message)
+
+        broadcastMessageToAllClients(MSG(userName + " is now online", MSGTYPE.ONLINE).message)
+    except:
+        print("unauthorized user disconnected")
     try:
         recieveMessages(client, userName)
     except:
