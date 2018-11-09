@@ -3,7 +3,7 @@ from _thread import *
 import threading
 import pickle
 from Message import *
-
+import base64
 print_lock = threading.Lock()
 users = []
 usersData = {}
@@ -27,22 +27,23 @@ def broadcastMessageToAllClients(msg):
 
 def recieveMessages(client, name):
     while True:
+        print("Taking user name and password.")
         Msg = getMessageFormClient(client)
         data = Msg.message
         broadcastMessageToAllClients(name + ": " + data)
 
 
 def sendMessageToClient(client, message):
-    client.send(pickle.dumps(message))
+    client.send(base64.b64encode(pickle.dumps(message)))
+    
 
 
-def getMessageFormClient(client):
-    return pickle.loads(client.recv(1024))
+def getMessageFormClient(client):    
+    return pickle.loads(base64.b64decode(client.recv(1024)))
 
 
-def login(username_sent, password_sent):
-    return (True, "Loggedin Successfully.")
 
+<<<<<<< HEAD
     """
     for (username, password) in usersdata.items():
         if (password == password_sent):
@@ -50,6 +51,15 @@ def login(username_sent, password_sent):
         else:
             return False 
     """
+=======
+
+def login(username_sent, password_sent):
+    for username in usersData:
+        if (password_sent == usersData[username]):
+            return (True, "Loggedin Successfully.")
+        
+    return (False, "UnSuccessfulg Logging in")
+>>>>>>> ccbe4be81dc926c79472f604e2af33de4108efce
 
 <<<<<<< HEAD
 #list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
@@ -67,29 +77,34 @@ def handleLoginOrRegister(Msg):
     if (Msg.msgType == MSGTYPE.LOGIN):
         return login(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
     elif (Msg.msgType == MSGTYPE.SIGN_UP):
-        return register(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
+        return register(Msg.message[0]) + (Msg.message[0],)
 
     return (False, "Please Login First!!!")
 
 
 def threaded(client):
+    print("NEW CLIENT")
     userName = str()
     while True:
         Msg = getMessageFormClient(client)
+        
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
+        print((isSucceed, status, userName))
         if (isSucceed):
             addUserToSystem(Msg.message[0], Msg.message[1], client)
             break
         else:
             sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
+            #client.close()
+            #return
 
     sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
     Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
 
-    recieveMessages(client, userName)
+    #recieveMessages(client, userName)
 
     Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    # removeUser(client)
+    #removeUser(client)
     client.close()
 
 
