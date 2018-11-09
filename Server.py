@@ -31,15 +31,18 @@ def addUserToSystem(userName, password, userObject):
 def register(name):
     if name in usersData:
         return (False, "Name is Already Used. Choose Other Name")
-    else:
-        return (True, "Registered Successfully!, Hello: "+name)
+    
+    return (True, "Registered Successfully!, Hello: "+name)
 
+def broadcastMessageToAllClients(msg):
+    for (userObj, _) in users:
+    	userObj.send(msg)
 
 def recieveMessages(client,name):
     while True:
         Msg = getMessageFormClient(client)
         data = Msg.message
-        broadcast(name+": "+data)
+        broadcastMessageToAllClients(name+": "+data)
 
 def sendMessageToClient(client, message):
     client.send(pickle.dumps(message))
@@ -85,7 +88,7 @@ def threaded(client):
     recieveMessages(client,userName)
 
     Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    removeUser(client)
+    #removeUser(client)
     client.close()
 
 def Main():
