@@ -9,7 +9,6 @@ users = []
 usersData = {}
 
 
-
 class MSG:
     def __init__(self, message, msgType):
         self.message = message
@@ -36,16 +35,28 @@ def register(name):
         return (True, "Registered Successfully!, Hello: "+name)
 
 
-def recieveMessages(obj,name):
+def recieveMessages(client,name):
     while True:
-        data = pickle.loads(obj.recv(1024)).message
+        Msg = getMessageFormClient(client)
+        data = Msg.message
         broadcast(name+": "+data)
 
 def sendMessageToClient(client, message):
-    client.send(pickle.dums(message))
+    client.send(pickle.dumps(message))
     
 def getMessageFormClient(client):
     return pickle.loads(client.recv(1024))
+
+def login(username_sent,password_sent):	
+    return (True, "Loggedin Successfully.")
+	
+    """
+    for (username, password) in useradata.items():
+        if (password == password_sent):
+            return True 
+        else:
+            return False 
+    """
 
 def handleLoginOrRegister(Msg):
     if(Msg.msgType == MSGTYPE.LOGIN):
