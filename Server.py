@@ -8,6 +8,7 @@ print_lock = threading.Lock()
 users = []  ##(userObject, username)
 usersData = {} ##name: Password
 
+
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
     users.append((userObject, userName))
@@ -22,12 +23,11 @@ def register(name):
 
 def broadcastMessageToAllClients(msg):
     for (userObj, _) in users:
-        userObj.send(msg)
+        userObj.send(msg.encode('ascii'))
 
 
 def recieveMessages(client, name):
     while True:
-        print("Taking user name and password.")
         Msg = getMessageFormClient(client)
         data = Msg.message
         broadcastMessageToAllClients(name + ": " + data)
@@ -35,19 +35,30 @@ def recieveMessages(client, name):
 
 def sendMessageToClient(client, message):
     client.send(base64.b64encode(pickle.dumps(message)))
-    
 
 
-def getMessageFormClient(client):    
+
+def getMessageFormClient(client):
     return pickle.loads(base64.b64decode(client.recv(1024)))
 
 
 def login(username_sent, password_sent):
-    for username in usersData:
-        if (password_sent == usersData[username]):
+    for username_sent in usersData:
+        if (password_sent == usersData[username_sent]):
             return (True, "Loggedin Successfully.")
 
     return (False, "UnSuccessfull Logging in")
+
+
+
+# list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
+#list_of_onlineusers = dict(list_of_onlineusers)
+
+
+def removeuser(client):
+    print(list_of_onlineusers)
+    del list_of_onlineusers[client]
+    print(list_of_onlineusers)
 
 
 def handleLoginOrRegister(Msg):
@@ -64,7 +75,7 @@ def threaded(client):
     userName = str()
     while True:
         Msg = getMessageFormClient(client)
-        
+
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
         print((isSucceed, status, userName))
         if (isSucceed):
@@ -76,13 +87,12 @@ def threaded(client):
             client.close()
             return
 
-    sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
-    Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
-
-    #recieveMessages(client, userName)
-
-    Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    #removeUser(client)
+    sendMessageToClient(client, MSG(userName + " is now online", MSGTYPE.ONLINE))
+    try:
+        recieveMessages(client, userName)
+    except EOFError:
+        # removeUser(client)
+        broadcastMessageToAllClients(MSG(userName + " is now offline", MSGTYPE.OFFLINE).message)
     client.close()
 
 
