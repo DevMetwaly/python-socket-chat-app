@@ -69,22 +69,24 @@ def handleLoginOrRegister(Msg):
 
 
 def threaded(client):
-    print("NEW CLIENT")
     userName = str()
     while True:
-        Msg = getMessageFormClient(client)
+        try:
+            Msg = getMessageFormClient(client)
+            (isSucceed, status, userName) = handleLoginOrRegister(Msg)
+            print((isSucceed, status, userName))
+            if isSucceed:
+                addUserToSystem(Msg.message[0], Msg.message[1], client)
+                break
+            else:
+                sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
+        except:
+           break
 
-        (isSucceed, status, userName) = handleLoginOrRegister(Msg)
-        print((isSucceed, status, userName))
-        if (isSucceed):
-            addUserToSystem(Msg.message[0], Msg.message[1], client)
-            break
-        else:
-            sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
-    sendMessageToClient(client, MSG(userName + " is now online", MSGTYPE.ONLINE))
+    broadcastMessageToAllClients(MSG(userName + " is now online", MSGTYPE.ONLINE).message)
     try:
         recieveMessages(client, userName)
-    except EOFError:
+    except:
         # removeUser(client)
         broadcastMessageToAllClients(MSG(userName + " is now offline", MSGTYPE.OFFLINE).message)
     client.close()

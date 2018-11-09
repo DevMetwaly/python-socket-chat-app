@@ -10,9 +10,7 @@ def Main():
     s.connect((host, port))
     username="abdo"
     password="1234"
-    Msg= MSG((username,password),MSGTYPE.LOGIN)
-    
-    s.send(pickle.dumps(Msg))
+    s.send(pickle.dumps(MSG((username,password),MSGTYPE.LOGIN)))
     data = pickle.loads(s.recv(1024))
     print(data.message)
     while True:
