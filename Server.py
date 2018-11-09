@@ -84,8 +84,8 @@ def threaded(client):
             break
         else:
             sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
-            # client.close()
-            # return
+            client.close()
+            return
 
     sendMessageToClient(client, MSG(userName + " is now online", MSGTYPE.ONLINE))
     try:
