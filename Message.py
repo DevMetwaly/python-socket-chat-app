@@ -13,4 +13,4 @@ class MSGTYPE(Enum):
     ONLINE = 3
     OFFLINE = 4
     FAILURE = 5
-    Message = 6
+    Message = 0
