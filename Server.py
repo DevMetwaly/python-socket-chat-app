@@ -34,34 +34,29 @@ def recieveMessages(client, name):
 
 
 def sendMessageToClient(client, message):
-    client.send(pickle.dumps(message))
+    client.send(base64.b64encode(pickle.dumps(message)))
+    
 
 
-def getMessageFormClient(client):
-    data = client.recv(1024)
-    print(data)
-    data = base64.b64decode(data)
-    print(data)
-    return pickle.loads(data)
+def getMessageFormClient(client):    
+    return pickle.loads(base64.b64decode(client.recv(1024)))
+
+
 
 
 def login(username_sent, password_sent):
-    return (True, "Loggedin Successfully.")
-
-    """
-    for (username, password) in useradata.items():
-        if (password == password_sent):
-            return True 
-        else:
-            return False 
-    """
+    for username in usersData:
+        if (password_sent == usersData[username]):
+            return (True, "Loggedin Successfully.")
+        
+    return (False, "UnSuccessfulg Logging in")
 
 
 def handleLoginOrRegister(Msg):
     if (Msg.msgType == MSGTYPE.LOGIN):
         return login(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
     elif (Msg.msgType == MSGTYPE.SIGN_UP):
-        return register(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
+        return register(Msg.message[0]) + (Msg.message[0],)
 
     return (False, "Please Login First!!!")
 
@@ -79,14 +74,16 @@ def threaded(client):
             break
         else:
             sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
+            #client.close()
+            #return
 
     sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
     Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
 
-    recieveMessages(client, userName)
+    #recieveMessages(client, userName)
 
     Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    # removeUser(client)
+    #removeUser(client)
     client.close()
 
 
