@@ -1,27 +1,12 @@
-import socket 
-from _thread import * 
+import socket
+from _thread import *
 import threading
 import pickle
-from enum import Enum
+from Message import *
 
 print_lock = threading.Lock()
 users = []
 usersData = {}
-
-
-class MSG:
-    def __init__(self, message, msgType):
-        self.message = message
-        self.msgType = msgType
-
-
-class MSGTYPE(Enum):
-    LOGIN = 1
-    SIGN_UP = 2
-    ONLINE = 3
-    OFFLINE = 4
-    FAILURE = 5
-
 
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
@@ -31,28 +16,33 @@ def addUserToSystem(userName, password, userObject):
 def register(name):
     if name in usersData:
         return (False, "Name is Already Used. Choose Other Name")
-    
-    return (True, "Registered Successfully!, Hello: "+name)
+
+    return (True, "Registered Successfully!, Hello: " + name)
+
 
 def broadcastMessageToAllClients(msg):
     for (userObj, _) in users:
-    	userObj.send(msg)
+        userObj.send(msg)
 
-def recieveMessages(client,name):
+
+def recieveMessages(client, name):
     while True:
         Msg = getMessageFormClient(client)
         data = Msg.message
-        broadcastMessageToAllClients(name+": "+data)
+        broadcastMessageToAllClients(name + ": " + data)
+
 
 def sendMessageToClient(client, message):
     client.send(pickle.dumps(message))
-    
+
+
 def getMessageFormClient(client):
     return pickle.loads(client.recv(1024))
 
-def login(username_sent,password_sent):	
+
+def login(username_sent, password_sent):
     return (True, "Loggedin Successfully.")
-	
+
     """
     for (username, password) in usersdata.items():
         if (password == password_sent):
@@ -61,6 +51,7 @@ def login(username_sent,password_sent):
             return False 
     """
 
+<<<<<<< HEAD
 #list_of_onlineusers = [("mona" ,1),("tarek",4),("metwaly" ,5),("salma",9)]
 list_of_onlineusers = dict(list_of_onlineusers)
 def removeuser(client):
@@ -69,14 +60,16 @@ def removeuser(client):
 	print (list_of_onlineusers)
 	del list_of_onlineusers[client]
 	print (list_of_onlineusers)
+=======
+>>>>>>> 507a91afc6627228ad7ddafdd31dd6ae17e99696
 
 def handleLoginOrRegister(Msg):
-    if(Msg.msgType == MSGTYPE.LOGIN):
-        return login(Msg.userName, Msg.password) + (Msg.username,)
+    if (Msg.msgType == MSGTYPE.LOGIN):
+        return login(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
     elif (Msg.msgType == MSGTYPE.SIGN_UP):
-        return register(Msg.userName) + (Msg.username,)
+        return register(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
 
-    return (False,"Please Login First!!!")
+    return (False, "Please Login First!!!")
 
 
 def threaded(client):
@@ -84,29 +77,29 @@ def threaded(client):
     while True:
         Msg = getMessageFormClient(client)
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
-        if(isSucceed):
-            addUserToSystem(Msg.userName,Msg.password,client)
+        if (isSucceed):
+            addUserToSystem(Msg.message[0], Msg.message[1], client)
             break
         else:
-            sendMessageToClient(client,MSG(status,MSGTYPE.FAILURE))
-            
+            sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
 
-    sendMessageToClient(client,MSG(status,MSGTYPE.FAILURE))
+    sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
     Msg = MSG(userName + " is now online", MSGTYPE.ONLINE)
 
-    recieveMessages(client,userName)
+    recieveMessages(client, userName)
 
     Msg = MSG(userName + " is now offline", MSGTYPE.OFFLINE)
-    #removeUser(client)
+    # removeUser(client)
     client.close()
+
 
 def Main():
     host = ""
 
     port = 12345
     s = socket.socket()
-    
-    s.bind((host,port))
+
+    s.bind((host, port))
     print("Socket is bined to post", port)
 
     s.listen(5)
@@ -119,8 +112,9 @@ def Main():
         print("Connected to:", addr[0], ":", addr[1])
         print_lock.release()
 
-        start_new_thread(threaded,(client,))
+        start_new_thread(threaded, (client,))
     s.close()
+
 
 if __name__ == "__main__":
     Main()
