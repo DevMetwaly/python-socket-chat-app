@@ -54,9 +54,9 @@ def login(username_sent, password_sent):
 
 def handleLoginOrRegister(Msg):
     if (Msg.msgType == MSGTYPE.LOGIN):
-        return login(Msg.userName, Msg.password) + (Msg.username,)
+        return login(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
     elif (Msg.msgType == MSGTYPE.SIGN_UP):
-        return register(Msg.userName) + (Msg.username,)
+        return register(Msg.message[0], Msg.message[1]) + (Msg.message[0],)
 
     return (False, "Please Login First!!!")
 
@@ -67,7 +67,7 @@ def threaded(client):
         Msg = getMessageFormClient(client)
         (isSucceed, status, userName) = handleLoginOrRegister(Msg)
         if (isSucceed):
-            addUserToSystem(Msg.userName, Msg.password, client)
+            addUserToSystem(Msg.message[0], Msg.message[1], client)
             break
         else:
             sendMessageToClient(client, MSG(status, MSGTYPE.FAILURE))
