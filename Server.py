@@ -88,6 +88,7 @@ def threaded(client):
             return
 
     sendMessageToClient(client, MSG(userName + " is now online", MSGTYPE.ONLINE))
+
     try:
         recieveMessages(client, userName)
     except EOFError:
