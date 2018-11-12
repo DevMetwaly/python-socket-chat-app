@@ -5,7 +5,16 @@ import pickle
 from Message import *
 import base64
 from DataModel import *
+
 print_lock = threading.Lock()
+class client:
+    def __init__(self,fullname,username,password,email,gender,status):
+        self.fullname = fullname
+        self.username = username
+        self.password = password
+        self.email = email
+        self.gender = gender
+        self.status = status
 
 class Server:
     def __init__(self,host="",port=12345,dbName="data"):

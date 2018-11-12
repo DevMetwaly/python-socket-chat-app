@@ -1,22 +1,11 @@
 import os
 from sqlobject import *
 from time import *
+from Client import Client
+from Chat import Chat
 
 
-class Client(SQLObject):
-    fullname = StringCol()
-    username = StringCol(alternateID=True)
-    password = StringCol()
-    email = StringCol(alternateID=True)
-    gender = EnumCol(enumValues=["Male", "Female"])
-    status = EnumCol(enumValues=["Online", "Offline", "Busy"])
-    messages = MultipleJoin(otherClass="Chat", joinColumn="sender_id")
-    ClientConnection = None
 
-class Chat(SQLObject):
-    sender = ForeignKey("Client")
-    message = StringCol()
-    time = DateTimeCol(default=DateTimeCol.now())
 
 
 class DataModel:
@@ -28,6 +17,10 @@ class DataModel:
     
     def register(self,client,clientConnection):    
         try:
+            print(client.gender)
+            print (client.password)
+            print(client.username)
+
             client = Client(fullname = client.fullname, username=client.username, password=client.password, email=client.email, gender=client.gender, status=client.status)
             client.ClientConnection = clientConnection
             return (True, "Registered Successfully!, Hello: " + client.username, client)
@@ -39,6 +32,7 @@ class DataModel:
         if (client.count()==1):
             client = list(client)[0]
             client.clientConnection = clientConnection
+            print(client)
             return (True, "Loggedin Successfully.",client)
 
         return (False, "Wrong username or Password", None)
