@@ -12,6 +12,7 @@ def Main():
     username="abdo"
     password="1234"
     Msg= MSG((username,password),MSGTYPE.LOGIN)
+
     
     s.send(base64.b64encode(pickle.dumps(Msg)))
     data = pickle.loads(base64.b64decode(s.recv(1024)))
