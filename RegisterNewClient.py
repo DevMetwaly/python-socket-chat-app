@@ -3,6 +3,14 @@ import pickle
 from Message import *
 import base64
 
+class Client:
+    fullname = "None"
+    username = "None"
+    password = "None"
+    email ="None"
+    gender = "Male"
+    status = "Online"
+    
 
 def Main():
     host = "127.0.0.1"
@@ -10,9 +18,9 @@ def Main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
-    username = "abdo"
-    password = "1234"
-    Msg = MSG((username, password), MSGTYPE.SIGN_UP)
+    client = Client()
+    print(client)
+    Msg = MSG(client, MSGTYPE.SIGN_UP)
 
     s.send(base64.b64encode(pickle.dumps(Msg)))
     data = pickle.loads(base64.b64decode(s.recv(1024)))
@@ -22,3 +30,4 @@ def Main():
 
 if __name__ == '__main__':
     Main()
+

@@ -9,6 +9,7 @@ users = []  ##(userObject, username)
 usersData = {} ##name: Password
 
 
+
 def addUserToSystem(userName, password, userObject):
     usersData[userName] = password
     users.append((userObject, userName))
@@ -56,9 +57,10 @@ def login(username_sent, password_sent):
 
 
 def removeuser(client):
-    print(list_of_onlineusers)
-    del list_of_onlineusers[client]
-    print(list_of_onlineusers)
+    # print(list_of_onlineusers)
+    #del list_of_onlineusers[client]
+    # print(list_of_onlineusers)
+    return
 
 
 def handleLoginOrRegister(Msg):
