@@ -59,6 +59,7 @@ class Server:
                 self.sendMessageToClient(clientConnection, MSG(status, MSGTYPE.FAILURE))
                 #clientConnection.close() #to be commented
                 #return #to be commented
+
         self.brodcastMessage(MSG([(client.fullname, client.status) for client in list(Client.select())],MSGTYPE.List))
         
         while True:
@@ -77,6 +78,8 @@ class Server:
                 break
             elif(Msg.msgType == MSGTYPE.UPDATE_STATE):
                 self.db.updateClientStatus(client,Msg.message)
+                Msg.message = (Msg.message,client.username)
+                self.brodcastMessage(Msg)
             else:
                 break
             
