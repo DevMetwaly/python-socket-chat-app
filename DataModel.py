@@ -29,6 +29,7 @@ class DataModel:
         client = Client.select(AND(Client.q.username==username,Client.q.password==password))
         if (client.count()==1):
             client = list(client)[0]
+            client.set(status="Online")
             client.ClientConnection = clientConnection
             print(client)
             return (True, "Loggedin Successfully.",client)

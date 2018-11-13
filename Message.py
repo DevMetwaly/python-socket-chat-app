@@ -17,3 +17,5 @@ class MSGTYPE(Enum):
     SUCCESS = 6
     LOGOUT = 7
     UPDATE_STATE = 8
+    List = 9
+    UpdateList = 10
