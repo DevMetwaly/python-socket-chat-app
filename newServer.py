@@ -53,26 +53,25 @@ class Server:
             if(isSucceed):
                 self.onlineClients.append(client)
                 self.sendMessageToClient(client.ClientConnection, MSG(status, MSGTYPE.SUCCESS))
-                self.brodcastMessage(MSG(client.username + " is now online", MSGTYPE.ONLINE))
+                self.brodcastMessage(MSG(client.fullname + " is now online", MSGTYPE.ONLINE))
                 break
             else:
                 self.sendMessageToClient(clientConnection, MSG(status, MSGTYPE.FAILURE))
                 #clientConnection.close() #to be commented
                 #return #to be commented
-
-        self.brodcastMessage(MSG([(client.fullname, client.status) for client in list(Client.select())],MSGTYPE.List))
-        
+        self.brodcastMessage(MSG([(client.fullname, client.username, client.status) for client in list(Client.select())],MSGTYPE.OnlineList))
+        self.sendMessageToClient(client.ClientConnection, MSG([(chat.sender.fullname, chat.message, chat.time) for chat in Chat.select()],MSGTYPE.MessageList))
         while True:
 
             try:
                 Msg = self.receiveMessageFromClient(client.ClientConnection)
             except:
                 self.logout(client)
-                self.brodcastMessage(MSG(client.username + " is now offline", MSGTYPE.OFFLINE))
+                self.brodcastMessage(MSG(client.fullname + " is now offline", MSGTYPE.OFFLINE))
                 return
 
             if(Msg.msgType == MSGTYPE.Message):
-                Msg.message = (Msg.message,client.username,'blue')
+                Msg.message = (Msg.message,client.fullname,'blue')
                 self.brodcastMessage(Msg)
             elif(Msg.msgType == MSGTYPE.LOGOUT):
                 break
@@ -84,10 +83,11 @@ class Server:
                 break
             
         try:
-            self.logout(client) #maybe raise error later if the client deleted logged out from the brodcast then tries to logout agian here 
+            self.logout(client)
+            #maybe raise error later if the client deleted logged out from the brodcast then tries to logout agian here
         except:
             pass
-        self.brodcastMessage(MSG(client.username + " is now offline", MSGTYPE.OFFLINE))
+        self.brodcastMessage(MSG(client.fullname + " is now offline", MSGTYPE.OFFLINE))
         client.ClientConnection.close()
         return
 
