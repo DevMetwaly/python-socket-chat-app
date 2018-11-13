@@ -34,6 +34,10 @@ class DataModel:
             return (True, "Loggedin Successfully.",client)
 
         return (False, "Wrong username or Password", None)
+
+    def updateClientStatus(self,client,state):
+        client.status = state
+        
     def message(self,client,message):pass
 
 

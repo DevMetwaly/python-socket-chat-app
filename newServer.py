@@ -29,7 +29,14 @@ class Server:
 
     def brodcastMessage(self,message):
         for client in self.onlineClients:
-            self.sendMessageToClient(client.ClientConnection, message)
+            try:
+                self.sendMessageToClient(client.ClientConnection, message)
+            except:
+                self.logout(client)
+
+    def logout(self,client):
+        self.onlineClients.remove(client)
+        self.db.updateClientStatus(client,'Offline')
 
     def clientThread(self, clientConnection):
         client=None
@@ -50,18 +57,33 @@ class Server:
                 break
             else:
                 self.sendMessageToClient(clientConnection, MSG(status, MSGTYPE.FAILURE))
-                clientConnection.close() #to be commented
-                return #to be commented
+                #clientConnection.close() #to be commented
+                #return #to be commented
 
         while True:
+
             try:
                 Msg = self.receiveMessageFromClient(client.ClientConnection)
-                if(Msg.msgType == MSGTYPE.Message):
-                    Msg.message = (Msg.message,client.username,'blue')
-                    self.brodcastMessage(Msg)
             except:
-                self.logout()
+                self.logout(client)
+                self.brodcastMessage(MSG(client.username + " is now offline", MSGTYPE.OFFLINE))
+                return
+
+            if(Msg.msgType == MSGTYPE.Message):
+                Msg.message = (Msg.message,client.username,'blue')
+                self.brodcastMessage(Msg)
+            elif(Msg.msgType == MSGTYPE.LOGOUT):
                 break
+            elif(Msg.msgType == MSGTYPE.UPDATE_STATE):
+                self.db.updateClientStatus(client,Msg.message)
+            else:
+                break
+            
+        try:
+            self.logout(client) #maybe raise error later if the client deleted logged out from the brodcast then tries to logout agian here 
+        except:
+            pass
+        self.brodcastMessage(MSG(client.username + " is now offline", MSGTYPE.OFFLINE))
         client.ClientConnection.close()
         return
 
