@@ -54,10 +54,14 @@ class Server:
                 return #to be commented
 
         while True:
-            Msg = self.receiveMessageFromClient(client.ClientConnection)
-            if(Msg.msgType == MSGTYPE.Message):
-                Msg.message = (Msg.message,client.username,'blue')
-                self.brodcastMessage(Msg)
+            try:
+                Msg = self.receiveMessageFromClient(client.ClientConnection)
+                if(Msg.msgType == MSGTYPE.Message):
+                    Msg.message = (Msg.message,client.username,'blue')
+                    self.brodcastMessage(Msg)
+            except:
+                self.logout()
+                break
         client.ClientConnection.close()
         return
 
