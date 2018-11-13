@@ -9,3 +9,4 @@ class Client(SQLObject):
     status = EnumCol(enumValues=["Online", "Offline", "Busy"])
     messages = MultipleJoin(otherClass="Chat", joinColumn="sender_id")
     ClientConnection = None
+    

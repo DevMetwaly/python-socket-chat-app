@@ -17,11 +17,9 @@ class DataModel:
     
     def register(self,client,clientConnection):    
         try:
-            print(client.gender)
-            print (client.password)
-            print(client.username)
+            
 
-            client = Client(fullname = client.fullname, username=client.username, password=client.password, email=client.email, gender=client.gender, status=client.status)
+            client = Client(fullname = client['fullname'], username=client['username'], password=client['password'], email=client['email'], gender=client['gender'], status=client['status'])
             client.ClientConnection = clientConnection
             return (True, "Registered Successfully!, Hello: " + client.username, client)
         except dberrors.DuplicateEntryError:
@@ -31,7 +29,7 @@ class DataModel:
         client = Client.select(AND(Client.q.username==username,Client.q.password==password))
         if (client.count()==1):
             client = list(client)[0]
-            client.clientConnection = clientConnection
+            client.ClientConnection = clientConnection
             print(client)
             return (True, "Loggedin Successfully.",client)
 

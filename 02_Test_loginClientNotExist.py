@@ -9,7 +9,7 @@ def Main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
 
-    username="Hungry"
+    username="HungryBally"
     password="Hungry99"
     Msg= MSG((username,password),MSGTYPE.LOGIN)
 

@@ -7,14 +7,7 @@ import base64
 from DataModel import *
 
 print_lock = threading.Lock()
-class client:
-    def __init__(self,fullname,username,password,email,gender,status):
-        self.fullname = fullname
-        self.username = username
-        self.password = password
-        self.email = email
-        self.gender = gender
-        self.status = status
+
 
 class Server:
     def __init__(self,host="",port=12345,dbName="data"):
@@ -48,7 +41,8 @@ class Server:
                 (isSucceed, status, client) = self.db.login(Msg.message[0],Msg.message[1],clientConnection)
             elif(Msg.msgType == MSGTYPE.SIGN_UP):
                 (isSucceed, status, client) = self.db.register(Msg.message,clientConnection)
-                
+            
+            print(isSucceed, status, client)
             if(isSucceed):
                 self.onlineClients.append(client)
                 self.sendMessageToClient(client.ClientConnection, MSG(status, MSGTYPE.SUCCESS))
@@ -59,6 +53,11 @@ class Server:
                 clientConnection.close() #to be commented
                 return #to be commented
 
+        while True:
+            Msg = self.receiveMessageFromClient(client.ClientConnection)
+            if(Msg.msgType == MSGTYPE.Message):
+                Msg.message = (Msg.message,client.username,'blue')
+                self.brodcastMessage(Msg)
         client.ClientConnection.close()
         return
 
