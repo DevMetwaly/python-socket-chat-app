@@ -2,9 +2,9 @@ import socket
 from _thread import *
 import threading
 import pickle
-from Message import MSG, MSGTYPE
+from Message import *
 import base64
-from DataModel import DataModel
+from DataModel import *
 
 print_lock = threading.Lock()
 
@@ -41,7 +41,7 @@ class Server:
                 (isSucceed, status, client) = self.db.login(Msg.message[0],Msg.message[1],clientConnection)
             elif(Msg.msgType == MSGTYPE.SIGN_UP):
                 (isSucceed, status, client) = self.db.register(Msg.message,clientConnection)
-            
+
             print(isSucceed, status, client)
             if(isSucceed):
                 self.onlineClients.append(client)
@@ -52,7 +52,7 @@ class Server:
                 self.sendMessageToClient(clientConnection, MSG(status, MSGTYPE.FAILURE))
                 clientConnection.close() #to be commented
                 return #to be commented
-
+        self.brodcastMessage(MSG([(client.fullname, client.status) for client in list(Client.select())],MSGTYPE.List))
         while True:
             try:
                 Msg = self.receiveMessageFromClient(client.ClientConnection)
@@ -60,7 +60,7 @@ class Server:
                     Msg.message = (Msg.message,client.username,'blue')
                     self.brodcastMessage(Msg)
             except:
-                self.logout()
+                self.db.logout()
                 break
         client.ClientConnection.close()
         return
