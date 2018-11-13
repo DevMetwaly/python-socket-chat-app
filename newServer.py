@@ -83,7 +83,8 @@ class Server:
                 break
             
         try:
-            self.logout(client) #maybe raise error later if the client deleted logged out from the brodcast then tries to logout agian here 
+            self.logout(client)
+            #maybe raise error later if the client deleted logged out from the brodcast then tries to logout agian here
         except:
             pass
         self.brodcastMessage(MSG(client.fullname + " is now offline", MSGTYPE.OFFLINE))
