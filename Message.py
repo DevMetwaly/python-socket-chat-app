@@ -15,5 +15,7 @@ class MSGTYPE(Enum):
     OFFLINE = 4
     FAILURE = 5
     SUCCESS = 6
-    List = 7
-    UpdateList = 8
+    LOGOUT = 7
+    UPDATE_STATE = 8
+    List = 9
+    UpdateList = 10
