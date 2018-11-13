@@ -77,6 +77,8 @@ class Server:
                 break
             elif(Msg.msgType == MSGTYPE.UPDATE_STATE):
                 self.db.updateClientStatus(client,Msg.message)
+                Msg.message = (Msg.message,client.username)
+                self.brodcastMessage(Msg)
             else:
                 break
             
