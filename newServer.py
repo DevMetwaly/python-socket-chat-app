@@ -2,9 +2,9 @@ import socket
 from _thread import *
 import threading
 import pickle
-from Message import *
+from Message import MSG, MSGTYPE
 import base64
-from DataModel import *
+from DataModel import DataModel
 
 print_lock = threading.Lock()
 
