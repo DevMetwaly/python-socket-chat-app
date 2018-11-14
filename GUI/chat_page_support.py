@@ -15,9 +15,9 @@ def init(top, gui, *args, **kwargs):
     top_level = top
     root = top
 
-def send_button_handler(message):
+def send_button_handler(message,soc):
     if len(message) > 1:
-        client.post_message(message)
+        client.post_message(message,soc)
 
 def logout_handler():
     destroy_window()

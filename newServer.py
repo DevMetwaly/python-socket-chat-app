@@ -5,6 +5,7 @@ import pickle
 from Message import *
 import base64
 from DataModel import *
+import time
 
 print_lock = threading.Lock()
 
@@ -49,9 +50,7 @@ class Server:
                 (isSucceed, status, client) = self.db.login(Msg.message[0],Msg.message[1],clientConnection)
             elif Msg.msgType.value == MSGTYPE.SIGN_UP.value:
                 (isSucceed, status, client) = self.db.register(Msg.message,clientConnection)
-            print()
-            print(Msg.msgType,MSGTYPE.SIGN_UP)
-            print(status)
+
             if isSucceed:
                 self.onlineClients.append(client)
                 self.sendMessageToClient(client.ClientConnection, MSG(status, MSGTYPE.SUCCESS))
@@ -61,24 +60,28 @@ class Server:
                 self.sendMessageToClient(clientConnection, MSG(status, MSGTYPE.FAILURE))
                 #clientConnection.close() #to be commented
                 #return #to be commented
+        print([(client.fullname, client.username, client.status) for client in list(Client.select())])
+        time.sleep(.5)
         self.brodcastMessage(MSG([(client.fullname, client.username, client.status) for client in list(Client.select())],MSGTYPE.OnlineList))
-        self.sendMessageToClient(client.ClientConnection, MSG([(chat.sender.fullname, chat.message, chat.time) for chat in Chat.select()],MSGTYPE.MessageList))
+        self.sendMessageToClient(client.ClientConnection, MSG([(chat.message, chat.sender.fullname, 'blue') for chat in Chat.select()],MSGTYPE.MessageList))
         while True:
 
             try:
                 Msg = self.receiveMessageFromClient(client.ClientConnection)
+
                 Chat(senderID=client,message=Msg.message)
             except :
                 self.logout(client)
                 self.brodcastMessage(MSG(client.fullname + " is now offline", MSGTYPE.OFFLINE))
                 return
 
-            if(Msg.msgType == MSGTYPE.Message):
+            if Msg.msgType.value == MSGTYPE.Message.value:
+                print(Msg.message)
                 Msg.message = (Msg.message,client.fullname,'blue')
                 self.brodcastMessage(Msg)
-            elif(Msg.msgType == MSGTYPE.LOGOUT):
+            elif Msg.msgType.value == MSGTYPE.LOGOUT.value:
                 break
-            elif(Msg.msgType == MSGTYPE.UPDATE_STATE):
+            elif Msg.msgType.value == MSGTYPE.UPDATE_STATE.value:
                 self.db.updateClientStatus(client,Msg.message)
                 Msg.message = (Msg.message,client.username)
                 self.brodcastMessage(Msg)

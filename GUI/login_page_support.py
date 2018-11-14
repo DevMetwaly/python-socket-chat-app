@@ -12,7 +12,7 @@ def login_handler(data, soc):
 
     if isSucceed:
         destroy_window()
-        chat_page.main()
+        chat_page.main(soc)
         print(status)
     else:
         print(status)
@@ -22,7 +22,7 @@ def register_handler(data,soc):
 
     if isSucceed:
         destroy_window()
-        chat_page.main()
+        chat_page.main(soc)
         print(status)
     else:
         print(status)

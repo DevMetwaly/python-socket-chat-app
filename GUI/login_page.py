@@ -1,6 +1,7 @@
 # Created with great help of PAGE.
 import sys, client, time
 import tkinter as tk
+from _thread import start_new_thread
 from threading import Thread
 
 try:

@@ -1,9 +1,14 @@
 # Created with great help of PAGE.
+import base64
 import sys, client, socket
+from _thread import start_new_thread
 from threading import Thread
+
+import pickle
 from PIL import Image,ImageTk
 import tkinter as tk
 import chat_page_support
+from GUI.message import *
 try:
     import ttk
     py3 = False
@@ -14,7 +19,9 @@ except ImportError:
 COLOR = '#bc2626'
 
 class ChatInterface:
-    def __init__(self, top=None, color="#bc2626"):
+    def __init__(self,soc ,top=None, color="#bc2626"):
+        self.soc=soc
+        self.idx=0
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         _appcolor = color #'#bc2626'
@@ -91,7 +98,7 @@ class ChatInterface:
             activeforeground="#000000",
             background="#d9d9d9",
             borderwidth="0",
-            command=lambda: chat_page_support.send_button_handler(self.get_message_text()),
+            command=lambda: chat_page_support.send_button_handler(self.get_message_text(),self.soc),
             disabledforeground="#a3a3a3",
             foreground="#000000",
             highlightbackground="#d9d9d9",
@@ -175,21 +182,21 @@ class ChatInterface:
         )
 
     def init_users_list(self, users):
-        idx = 0
+        self.users_list.delete(0, tk.END)
+        idx=0
         for user in users:
             idx += 1
             self.users_list.insert(str(idx), user['username'])
 
     def init_chat_window(self, chat):
-        idx = 0
         for message in chat:
-            idx += 1
+            self.idx += 1
             if message['type'] == 'message':
-                self.insert_message(str(idx), message['username'], message['text'], message['color'])
+                self.insert_message(str(self.idx), message['username'], message['text'], message['color'])
             elif message['type'] == 'activity':
-                self.insert_status(str(idx), message['username'], message['text'])
+                self.insert_status(str(self.idx), message['username'], message['text'])
             else:
-                idx -= 1
+                self.idx -= 1
 
     def insert_message(self, idx, username, msg, color):
         font_username = "-family {Segoe UI} -size 12 -weight bold -slant " \
@@ -197,7 +204,7 @@ class ChatInterface:
         self.chat_scrolledtext.configure(state='normal')
         self.chat_scrolledtext.insert(tk.END, username + ': ' + msg + '\n')
         self.chat_scrolledtext.tag_config(username, foreground=color, font=font_username)
-        self.chat_scrolledtext.tag_add(username, idx+".0", idx+"."+str(len(username)+1))
+        self.chat_scrolledtext.tag_add(username, str(self.idx)+".0", str(self.idx)+"."+str(len(username)+1))
         self.chat_scrolledtext.configure(state='disabled')
 
     def insert_status(self, idx, username, msg):
@@ -207,7 +214,7 @@ class ChatInterface:
         self.msg = '-- ' + username + ' ' + msg + ' --\n'
         self.chat_scrolledtext.insert(tk.END, self.msg)
         self.chat_scrolledtext.tag_config("start", foreground="grey", font=font_user_activity, justify='center')
-        self.chat_scrolledtext.tag_add("start", idx+".0", idx+"." + str(len(self.msg)))
+        self.chat_scrolledtext.tag_add("start", str(self.idx)+'.0', str(self.idx)+"." + str(len(self.msg)))
         self.chat_scrolledtext.configure(state='disabled')
 
     def get_message_text(self):
@@ -221,21 +228,40 @@ class ChatInterface:
             print(t)
             #messageObj = Message(s.recv(1024))
             #self.insert_message(idx, messageObj.username, messageObj.text)
+    def listen(self):
+        while True:
+            Msg = pickle.loads(base64.b64decode(self.soc.recv(8000)))
+            print(Msg.message)
+            if Msg.msgType.value == MSGTYPE.OnlineList.value:
+                self.init_users_list([{'fullname': x[1], 'username': x[0], 'color': 'blue'} for x in Msg.message])
+            elif Msg.msgType.value == MSGTYPE.ONLINE.value:
+                self.insert_status(0, '', Msg.message)
+            elif Msg.msgType.value == MSGTYPE.OFFLINE.value:
+                self.insert_status(0, '', Msg.message)
+            elif Msg.msgType.value == MSGTYPE.Message.value:
+                self.insert_message(0, Msg.message[1], Msg.message[0], Msg.message[2])
+            elif Msg.msgType.value == MSGTYPE.MessageList.value:
+                [self.insert_message(0, Msg[1], Msg[0], Msg[2]) for Msg in Msg.message]
+            else:
+                pass
 
-def GUIStart(users, chat):
+
+def GUIStart(soc):
     global val, w, root, COLOR
     root = tk.Tk()
     root.resizable(width=False, height=False)
     chat_page_support.set_Tk_var()
-    window = ChatInterface(root, COLOR)
-    window.init_chat_window(chat)
-    window.init_users_list(users)
+    window = ChatInterface(soc,root, COLOR)
+    #start_new_thread(window.listen())
+    #window.init_chat_window(chat)
+    #window.init_users_list(users)
 
-    #updater = Thread(target=top.update_chat_window, args=(soc,))
-    #updater.setDaemon(True)
-    #updater.start()
+    updater = Thread(target=window.listen)
+    updater.setDaemon(True)
+    updater.start()
 
     chat_page_support.init(root, window)
+    print(1)
     root.mainloop()
 
 def destroy_Main():
@@ -372,10 +398,8 @@ def _on_shiftmouse(event, widget):
         elif event.num == 5:
             widget.xview_scroll(1, 'units')
 
-def main():
-    users = client.get_users_list()
-    chat = client.get_chat_history()
-    GUIStart(users, chat)
+def main(soc):
+    GUIStart(soc)
 
 if __name__ == '__main__':
     main()
