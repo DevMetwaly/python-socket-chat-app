@@ -1,7 +1,16 @@
 import socket
 import pickle
+from _thread import start_new_thread
+
 from Message import *
 import base64
+
+
+def Recive(s):
+    while True:
+        data = pickle.loads(base64.b64decode(s.recv(1024)))
+        print((data.message, data.msgType))
+
 
 def Main():
     host = "127.0.0.1"
@@ -11,8 +20,8 @@ def Main():
 
 
 
-    username="1"
-    password="1"
+    username="Hungry"
+    password="Hungry99"
     Msg= MSG((username,password),MSGTYPE.LOGIN)
     s.send(base64.b64encode(pickle.dumps(Msg)))
     data = pickle.loads(base64.b64decode(s.recv(1024)))
@@ -21,15 +30,11 @@ def Main():
     data = pickle.loads(base64.b64decode(s.recv(1024)))
     print((data.message, data.msgType))
 
+    start_new_thread(Recive,(s,))
     while True:
         message = input('message: ')
-        Msg= MSG(message,MSGTYPE.Message)
+        Msg = MSG(message, MSGTYPE.Message)
         s.send(base64.b64encode(pickle.dumps(Msg)))
-        data = pickle.loads(base64.b64decode(s.recv(1024)))
-
-        print((data.message[0],data.message[1],data.message[2], data.msgType))
-            
-
     s.close()
 
 if __name__ == '__main__':

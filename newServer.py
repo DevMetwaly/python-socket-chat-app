@@ -48,8 +48,6 @@ class Server:
                 (isSucceed, status, client) = self.db.login(Msg.message[0],Msg.message[1],clientConnection)
             elif(Msg.msgType == MSGTYPE.SIGN_UP):
                 (isSucceed, status, client) = self.db.register(Msg.message,clientConnection)
-
-            print(isSucceed, status, client)
             if(isSucceed):
                 self.onlineClients.append(client)
                 self.sendMessageToClient(client.ClientConnection, MSG(status, MSGTYPE.SUCCESS))
@@ -65,7 +63,8 @@ class Server:
 
             try:
                 Msg = self.receiveMessageFromClient(client.ClientConnection)
-            except:
+                Chat(senderID=client,message=Msg.message)
+            except :
                 self.logout(client)
                 self.brodcastMessage(MSG(client.fullname + " is now offline", MSGTYPE.OFFLINE))
                 return
