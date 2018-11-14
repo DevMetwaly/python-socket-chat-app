@@ -8,19 +8,24 @@ def set_Tk_var():
     combobox = tk.StringVar()
 
 def login_handler(data, soc):
-    if client.login_request(data) != 0:
+    isSucceed, status= client.login_request(data,soc)
+
+    if isSucceed:
         destroy_window()
         chat_page.main()
+        print(status)
     else:
-        print('Invalid username or password. (', data, ')')
+        print(status)
     sys.stdout.flush()
+def register_handler(data,soc):
+    isSucceed, status= client.register_request(data,soc)
 
-def register_handler(data):
-    if client.register_request(data):
-        #print('Registering: ', data)
-        pass
+    if isSucceed:
+        destroy_window()
+        chat_page.main()
+        print(status)
     else:
-        print('Error with registeration.')
+        print(status)
     sys.stdout.flush()
 
 def switch_login(page):

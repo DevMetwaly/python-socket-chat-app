@@ -41,14 +41,18 @@ class Server:
     def clientThread(self, clientConnection):
         client=None
         isSucceed = False
+        status = None
         while True:
             Msg = self.receiveMessageFromClient(clientConnection)
-
-            if(Msg.msgType == MSGTYPE.LOGIN):
+            print(Msg.msgType)
+            if Msg.msgType.value == MSGTYPE.LOGIN.value:
                 (isSucceed, status, client) = self.db.login(Msg.message[0],Msg.message[1],clientConnection)
-            elif(Msg.msgType == MSGTYPE.SIGN_UP):
+            elif Msg.msgType.value == MSGTYPE.SIGN_UP.value:
                 (isSucceed, status, client) = self.db.register(Msg.message,clientConnection)
-            if(isSucceed):
+            print()
+            print(Msg.msgType,MSGTYPE.SIGN_UP)
+            print(status)
+            if isSucceed:
                 self.onlineClients.append(client)
                 self.sendMessageToClient(client.ClientConnection, MSG(status, MSGTYPE.SUCCESS))
                 self.brodcastMessage(MSG(client.fullname + " is now online", MSGTYPE.ONLINE))

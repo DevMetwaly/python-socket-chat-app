@@ -2,36 +2,40 @@
 import sys, client, time
 import tkinter as tk
 from threading import Thread
+
 try:
     import ttk
+
     py3 = False
 except ImportError:
     import tkinter.ttk as ttk
+
     py3 = True
 import login_page_support
 
 COLOR = '#bc2626'
 
+
 class LoginInterface:
-    def __init__(self, top=None, color = 'navy'):
+    def __init__(self, top=None, color='navy'):
         global soc, connection_status
 
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana2color = '#d9d9d9' # X11 color: 'gray85'
-        font10 = "-family {Hobo Std} -size 28 -weight normal -slant "  \
-            "roman -underline 0 -overstrike 0"
-        font9 = "-family Tahoma -size 11 -weight normal -slant roman "  \
-            "-underline 0 -overstrike 0"
+        _compcolor = '#d9d9d9'  # X11 color: 'gray85'
+        _ana2color = '#d9d9d9'  # X11 color: 'gray85'
+        font10 = "-family {Hobo Std} -size 28 -weight normal -slant " \
+                 "roman -underline 0 -overstrike 0"
+        font9 = "-family Tahoma -size 11 -weight normal -slant roman " \
+                "-underline 0 -overstrike 0"
 
-        self.background_color = color #'#bc2626'
+        self.background_color = color  # '#bc2626'
         self.style = ttk.Style()
         if sys.platform == "win32":
             self.style.theme_use('vista')
 
         self.style.configure('.', background=_bgcolor, foreground=_fgcolor, font="TkDefaultFont")
-        self.style.map('.', background=[('selected', _compcolor), ('active',_ana2color)])
+        self.style.map('.', background=[('selected', _compcolor), ('active', _ana2color)])
 
         top.geometry("640x480")
         top.title("GhostsChatApp")
@@ -51,8 +55,8 @@ class LoginInterface:
             text='GhostsChatApp!'
         )
 
-        self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
-        top.configure(menu = self.menubar)
+        self.menubar = tk.Menu(top, font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
+        top.configure(menu=self.menubar)
 
         self.Login_Page = tk.Frame(top)
         self.Login_Page.place(relx=0.0, rely=0.283, relheight=0.65, relwidth=1.08)
@@ -114,7 +118,7 @@ class LoginInterface:
             activeforeground="#000000",
             background="#c68747",
             borderwidth="1",
-            command = lambda: login_page_support.login_handler(self.get_login_data(), soc),
+            command=lambda: login_page_support.login_handler(self.get_login_data(), soc),
             disabledforeground="#a3a3a3",
             font=font9,
             foreground="#000",
@@ -157,7 +161,7 @@ class LoginInterface:
             activeforeground="white",
             background=self.background_color,
             borderwidth="0", cursor='hand2',
-            command = lambda: login_page_support.switch_register(self.Register_Page),
+            command=lambda: login_page_support.switch_register(self.Register_Page),
             disabledforeground="#a3a3a3",
             foreground="#ffa6a6",
             highlightbackground="#114",
@@ -179,7 +183,6 @@ class LoginInterface:
             highlightcolor="black",
             text=connection_status['text']
         )
-
 
         self.Register_Page = tk.Frame(top)
         self.Register_Page.lower()
@@ -243,7 +246,7 @@ class LoginInterface:
             activeforeground="#000000",
             background="#e5cadb",
             borderwidth="1",
-            command = lambda: login_page_support.register_handler(self.get_registeration_data()),
+            command=lambda: login_page_support.register_handler(self.get_registeration_data(),soc),
             disabledforeground="#a3a3a3",
             font=font9,
             foreground="#000",
@@ -294,7 +297,7 @@ class LoginInterface:
 
         self.reg_agebox = ttk.Combobox(self.register_form)
         self.reg_agebox.place(relx=0.054, rely=0.667, relheight=0.083, relwidth=0.911, bordermode='ignore')
-        self.value_list = [i for i in range(15,60)]
+        self.value_list = [i for i in range(15, 60)]
         self.reg_agebox.configure(
             values=self.value_list,
             textvariable=login_page_support.combobox,
@@ -309,7 +312,7 @@ class LoginInterface:
             activeforeground="white",
             background=self.background_color,
             borderwidth="0", cursor='hand2',
-            command = lambda: login_page_support.switch_login(self.Login_Page),
+            command=lambda: login_page_support.switch_login(self.Login_Page),
             disabledforeground="#a3a3a3",
             foreground="#ffa6a6",
             highlightbackground="#114",
@@ -319,10 +322,12 @@ class LoginInterface:
         )
 
     def get_login_data(self):
-        return {'username':self.user_textbox.get(), 'password':self.pass_textbox.get()}
+        return {'username': self.user_textbox.get(), 'password': self.pass_textbox.get()}
 
     def get_registeration_data(self):
-        return {'username':self.reguser_textbox.get(), 'password':self.regpass_textbox.get(), 'age':self.reg_agebox.get()}
+        return {'username': self.reguser_textbox.get(), 'password': self.regpass_textbox.get(),
+                'fullname': self.reguser_textbox.get(), 'gender': 'Male',
+                'email': self.reguser_textbox.get() + '@gmail.com', 'status': 'Online'}
 
 
 def GUIStart():
@@ -336,6 +341,7 @@ def GUIStart():
     login_page_support.init(root, window)
     root.mainloop()
 
+
 def destroy_Main():
     global w
     w.destroy()
@@ -344,14 +350,10 @@ def destroy_Main():
 
 def main():
     global soc, connection_status
-    host, port = '127.0.0.1', 20220
+    host, port = '127.0.0.1', 12345
     soc, connection_status = client.connect(host, port)
     GUIStart()
 
+
 if __name__ == '__main__':
     main()
-
-
-
-
-
