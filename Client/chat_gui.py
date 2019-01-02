@@ -1,5 +1,5 @@
 # Created with great help of PAGE.
-import sys, client, socket, base64, pickle
+import sys, client, socket, base64, pickle, json
 import tkinter as tk
 from _thread import start_new_thread
 from threading import Thread
@@ -16,14 +16,18 @@ except ImportError:
     py3 = True
 
 COLOR = '#bc2626'
-
-image = Image.open('./emojis/png/051-angel.png')
-image = image.resize((25, 25), Image.ANTIALIAS)
+EMOJIS = json.loads(open('./client/emojis/emojis.json', 'r').read())
+for emoji in EMOJIS:
+			EMOJIS[emoji]['img'] = (Image.open(EMOJIS[emoji]['path'])).resize((25, 25), Image.ANTIALIAS)
 
 class ChatInterface:
     
     def __init__(self,soc ,top = None, color = "#bc2626"):
-        self.photo = ImageTk.PhotoImage(image)
+
+        self.emojis = {}
+        for emoji in EMOJIS:
+            self.emojis[emoji] = ImageTk.PhotoImage(EMOJIS[emoji]['img'])
+          
         self.online_users = tk.StringVar()
         # self.chat_log = tk.StringVar()
         self.soc = soc
@@ -213,17 +217,23 @@ class ChatInterface:
         self.idx += msg.count('\n')
 
     def check_emoji(self, username, msg):
-    	# add code here
-    	# loop checking for all supported emojis, shift index of find function after the found emoji
-    	# to find other emojis.. stop when no more emojis or msg end
-    	shift = len(username) + 2
-    	x = msg.find(':)')
-    	if x > -1:
-    		emojiSize = 2
-    		start = str(self.idx) + '.' + str(x + shift) # shift + 2 for 'username: '
-    		end = str(self.idx) + '.' + str(x + shift + emojiSize)
-    		self.chat_scrolledtext.delete(start, end)
-    		self.chat_scrolledtext.image_create(start, image=self.photo)
+        # add code here
+        # loop checking for all supported emojis, shift index of find function after the found emoji
+        # to find other emojis.. stop when no more emojis or msg end
+        shift = len(username) + 2
+        for e in EMOJIS:
+            x = msg.find(e, 0)
+            while(x > -1):
+                emojiSize = EMOJIS[e]['size']
+                start = str(self.idx) + '.' + str(x + shift) # shift + 2 for 'username: '
+                end = str(self.idx) + '.' + str(x + shift + emojiSize)
+                self.chat_scrolledtext.delete(start, end)
+                self.chat_scrolledtext.image_create(start, image = self.emojis[e])
+                msg = msg.replace(e, '', 1) # remove inserted emoji from msg
+                x = msg.find(e, x)
+                if x > -1:
+                	x += 1
+
 
     def insert_status(self, idx, username, msg):
 

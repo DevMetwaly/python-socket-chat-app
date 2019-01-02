@@ -1,0 +1,18 @@
+{
+"O:)": {"path": "./client/emojis/png/051-angel.png" , "size": 3},
+":)": {"path": "./client/emojis/png/051-happy-2.png" , "size": 2},
+":'D": {"path": "./client/emojis/png/051-laughing-1.png" , "size": 3},
+":'(": {"path": "./client/emojis/png/051-crying-2.png" , "size": 2},
+":D": {"path": "./client/emojis/png/051-happy-5.png" , "size": 2},
+":(": {"path": "./client/emojis/png/051-sad-2.png" , "size": 2},
+":P": {"path": "./client/emojis/png/051-wink.png" , "size": 2},
+":O": {"path": "./client/emojis/png/051-surprised.png" , "size": 2},
+":@": {"path": "./client/emojis/png/051-angry.png" , "size": 2},
+":*": {"path": "./client/emojis/png/051-kiss-1.png" , "size": 2},
+":3": {"path": "./client/emojis/png/051-cute.png" , "size": 2},
+"-_-": {"path": "./client/emojis/png/051-serious.png" , "size": 3},
+"T_T": {"path": "./client/emojis/png/051-crying-1.png" , "size": 3},
+"B)": {"path": "./client/emojis/png/051-cool-1.png" , "size": 2},
+":x": {"path": "./client/emojis/png/051-muted.png" , "size": 2}
+}
+
