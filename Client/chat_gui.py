@@ -17,10 +17,13 @@ except ImportError:
 
 COLOR = '#bc2626'
 
+image = Image.open('./emojis/png/051-angel.png')
+image = image.resize((25, 25), Image.ANTIALIAS)
+
 class ChatInterface:
     
     def __init__(self,soc ,top = None, color = "#bc2626"):
-        
+        self.photo = ImageTk.PhotoImage(image)
         self.online_users = tk.StringVar()
         # self.chat_log = tk.StringVar()
         self.soc = soc
@@ -192,20 +195,35 @@ class ChatInterface:
         idx = 0
         for user in users:
             idx += 1
-            self.users_list.insert(str(idx), user['username'])
+            username = user['username']
+            color = user['color']
+            self.users_list.insert(str(idx), username)
+            self.users_list.itemconfig(idx-1, {'fg': color})
 
     def insert_message(self, idx, username, msg, color):
 
-        print(idx, username, msg, color)
         font_username = "-family {Segoe UI} -size 12 -weight bold -slant " \
                         "roman -underline 0 -overstrike 0"
         self.chat_scrolledtext.configure(state = 'normal')
         self.chat_scrolledtext.insert(tk.END, username + ': ' + msg + '\n')
         self.chat_scrolledtext.tag_config(username, foreground=color, font=font_username)
         self.chat_scrolledtext.tag_add(username, str(self.idx) + ".0", str(self.idx) + "." + str(len(username)+1))
+        self.check_emoji(username, msg)
         self.chat_scrolledtext.configure(state='disabled')
-        
         self.idx += msg.count('\n')
+
+    def check_emoji(self, username, msg):
+    	# add code here
+    	# loop checking for all supported emojis, shift index of find function after the found emoji
+    	# to find other emojis.. stop when no more emojis or msg end
+    	shift = len(username) + 2
+    	x = msg.find(':)')
+    	if x > -1:
+    		emojiSize = 2
+    		start = str(self.idx) + '.' + str(x + shift) # shift + 2 for 'username: '
+    		end = str(self.idx) + '.' + str(x + shift + emojiSize)
+    		self.chat_scrolledtext.delete(start, end)
+    		self.chat_scrolledtext.image_create(start, image=self.photo)
 
     def insert_status(self, idx, username, msg):
 
@@ -224,13 +242,6 @@ class ChatInterface:
         self.chat_frame_textbox.delete('1.0', tk.END)
         return message.strip()
 
-    def update_chat_window(self, s):
-
-        while True:
-            t = yield
-            print(t)
-            #messageObj = Message(s.recv(1024))
-            #self.insert_message(idx, messageObj.username, messageObj.text)
 
     def listen(self):
 
@@ -266,6 +277,7 @@ class ChatInterface:
     def send_button_handler(self, message,soc):
         if len(message) > 1:
             client.post_message(message,soc)
+
 
     def logout_handler(self):
         destroy_Main()

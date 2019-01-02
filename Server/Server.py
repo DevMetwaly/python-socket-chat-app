@@ -61,7 +61,7 @@ class Server:
 
 
         self.brodcastMessage(MSG(
-        	[(client.fullname, client.username, client.status) for client in list(Client.selectBy(status = STATUS_ONLINE))],
+        	[(client.fullname, client.username, client.status, client.color) for client in list(Client.selectBy(status = STATUS_ONLINE))],
         	MSGTYPE.OnlineList))
 
         self.sendMessageToClient(

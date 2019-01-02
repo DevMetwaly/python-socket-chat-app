@@ -62,27 +62,3 @@ def get_users_list(soc):
     return [{'fullname': x[1], 'username': x[0], 'color': 'blue'} for x in
             Msg.message] if Msg.msgType.value == MSGTYPE.OnlineList.value else []
 
-
-def get_chat_history(soc):
-    return [
-        {
-            'type': 'message',
-            'username': 'Tarek',
-            'text': 'My first message',
-            'date': '12/11/18 11:58PM',
-            'color': 'blue'
-        },
-        {
-            'type': 'activity',
-            'username': 'Tarek',
-            'text': 'has logged out.',
-            'date': '12/11/18 11:59PM',
-        },
-        {
-            'type': 'message',
-            'username': 'Salma',
-            'text': 'Second message!',
-            'date': '13/11/18 01:30AM',
-            'color': 'purple'
-        },
-    ]
